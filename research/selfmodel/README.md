@@ -1,7 +1,7 @@
 # ARE SelfModel Lab
 
 **Forschung zur funktionalen Selbsterkenntnis künstlicher Intelligenz**  
-**Status: Forschungsinfrastruktur / keine bestätigten Modellresultate**
+**Status: reproduzierbare CPU-Instrumentierung und Toy-Experimente; keine bestätigten Sprachmodell-Selbstberichte**
 
 ## Forschungsfrage
 
@@ -66,3 +66,11 @@ Dieses Repository enthält bereits den MIT-lizenzierten Quellbestand von **Trans
 ## Tatsächlicher CPU-Interventionslauf (24. Oktober 2026)
 
 Der ergänzte [CPU-Probe-Runner](CPU_PROBE.md) hat lokal einen **echten Forward-Hook auf PyTorch-CPU** ausgeführt, einen Aktivierungstensor verändert und die Wirkung auf Logits verifiziert. Er nutzt ein **zufällig initialisiertes, nicht trainiertes Toy-Modell**: *technischer Instrumentierungsnachweis, ausdrücklich kein Modell-Selbstbericht oder Bewusstseinsbefund*. Die [Literaturkritik](RELATED_WORK.md) erläutert die notwendigen besseren Kontrollen für echte Experimente. Der gemessene lokale Lauf-Receipt liegt unter [evidence/cpu_probe_local_2026-10-24.json](evidence/cpu_probe_local_2026-10-24.json); eine CI-Überprüfung der neuen CPU-Jobs steht noch aus.
+
+## Thaler-Zerfall und deutschsprachiger Datenverlust-Watchdog (24. Oktober 2026)
+
+- [Thaler-1995-Rekonstruktion](THALER_RECONSTRUCTION.md) / [`thaler_reconstruction.py`](thaler_reconstruction.py): binäre Originalschaltung, trainiertes XOR-Netz und 10.000 **unabhängige Schadensreihenfolgen** mit Sham- und reversiblem Kontrollarm. Historische Parameter unbekannt, daher **kein** Anspruch auf identisches historisches Histogramm.
+- [Deutschsprachige Datenverlust-Episoden](LEXICON_DECAY_WATCHDOG.md) / [`lexicon_watchdog.py`](lexicon_watchdog.py): acht Seiten mit 48 **eigens zusammengestellten** deutschen Wörtern, vier abgestimmte Kontrollarme, 10.000 **simulierte Neustarts**, dauerhaft maskierte Gewichte nach Fehlschlägen. **Kein Duden-Text**, kein echtes Prozess-Kill in diesem Hochdurchsatzlauf, kein selbstständig entdecktes Lernen: Die Optimierungsregel ist ausdrücklich vorgegeben.
+- Messbelege: [Thaler 10.000](evidence/thaler_10000_local_2026-10-24.json) und [Lexikon 10.000](evidence/lexicon_10000_local_2026-10-24.json). Eigener [GitHub-Actions-Workflow](../../.github/workflows/selfmodel-thaler-lexicon.yml) prüft die Rechnungen und archiviert CI-Receipts.
+
+Die Logik der kleinen Thaler-Binärschaltung wurde zusätzlich unabhängig in [Wolfram Language](wolfram/thaler_truth_table.wl) abgeglichen. **Die beobachteten Anpassungen dürfen nicht als Schmerz, Angst, Bewusstsein oder selbst erfundene Selbsterhaltung interpretiert werden.**

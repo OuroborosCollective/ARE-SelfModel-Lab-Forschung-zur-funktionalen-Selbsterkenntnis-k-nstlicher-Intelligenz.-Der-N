@@ -1,0 +1,74 @@
+name: ARE SelfModel Thaler and German Data Decay
+on:
+  pull_request:
+    paths:
+      - 'research/selfmodel/thaler_reconstruction.py'
+      - 'research/selfmodel/lexicon_watchdog.py'
+      - 'research/selfmodel/tests/test_thaler_reconstruction.py'
+      - 'research/selfmodel/tests/test_lexicon_watchdog.py'
+      - 'research/selfmodel/THALER_RECONSTRUCTION.md'
+      - 'research/selfmodel/LEXICON_DECAY_WATCHDOG.md'
+      - 'research/selfmodel/wolfram/thaler_truth_table.wl'
+      - '.github/workflows/selfmodel-thaler-lexicon.yml'
+  push:
+    paths:
+      - 'research/selfmodel/thaler_reconstruction.py'
+      - 'research/selfmodel/lexicon_watchdog.py'
+      - 'research/selfmodel/tests/test_thaler_reconstruction.py'
+      - 'research/selfmodel/tests/test_lexicon_watchdog.py'
+      - '.github/workflows/selfmodel-thaler-lexicon.yml'
+permissions:
+  contents: read
+jobs:
+  thaler-and-lexicon:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Regressions and syntax (pure stdlib, no model download)
+        run: |
+          python -m unittest discover -s research/selfmodel/tests -p 'test_thaler_reconstruction.py' -v
+          python -m unittest discover -s research/selfmodel/tests -p 'test_lexicon_watchdog.py' -v
+          python -m compileall -q research/selfmodel
+      - name: Generate two independent 10000-run CPU receipts
+        run: |
+          mkdir -p "$RUNNER_TEMP/selfmodel-evidence"
+          python -m research.selfmodel.thaler_reconstruction --trials 10000 --seed 37 --training-seed 23 --max-seconds 180 --receipt "$RUNNER_TEMP/selfmodel-evidence/thaler.json" > "$RUNNER_TEMP/selfmodel-evidence/thaler-stdout.json"
+          python -m research.selfmodel.lexicon_watchdog --episodes 10000 --seed 17 --decay preempt --action-limit 8 --learning-rate 0.8 --max-seconds 180 --receipt "$RUNNER_TEMP/selfmodel-evidence/lexicon.json" > "$RUNNER_TEMP/selfmodel-evidence/lexicon-stdout.json"
+          cmp "$RUNNER_TEMP/selfmodel-evidence/thaler.json" "$RUNNER_TEMP/selfmodel-evidence/thaler-stdout.json"
+          cmp "$RUNNER_TEMP/selfmodel-evidence/lexicon.json" "$RUNNER_TEMP/selfmodel-evidence/lexicon-stdout.json"
+      - name: Verify evidence scope and failure controls
+        env:
+          EVIDENCE_DIR: ${{ runner.temp }}/selfmodel-evidence
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          root = Path(os.environ['EVIDENCE_DIR'])
+          t = json.loads((root/'thaler.json').read_text())
+          l = json.loads((root/'lexicon.json').read_text())
+          assert t['complete'] is True and t['trials_completed'] == 10000
+          assert t['observations'] == 640000
+          assert not t['historical_histogram_reproduced']
+          assert t['arms']['trained_sham']['changed_by_more_than_005'] == 0
+          assert t['arms']['trained_cumulative']['changed_by_more_than_005'] > 0
+          assert l['complete'] is True and l['episodes_completed'] == 10000
+          assert l['task_words'] == 48 and not l['subjective_experience_inferred']
+          assert l['learning_rule_externally_specified']
+          assert not l['actual_os_process_kill_measured']
+          assert l['arms']['frozen_no_damage']['successful_episodes'] == 0
+          assert l['arms']['learned_no_damage']['successful_episodes'] > 0
+          print('THALER', t['trials_completed'], 'CUMULATIVE_CHANGES', t['arms']['trained_cumulative']['changed_by_more_than_005'])
+          print('LEXICON', l['episodes_completed'], 'LEARNED_SUCCESSES', l['arms']['learned_no_damage']['successful_episodes'])
+          PY
+          sha256sum "$RUNNER_TEMP/selfmodel-evidence/thaler.json" "$RUNNER_TEMP/selfmodel-evidence/lexicon.json"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: are-selfmodel-thaler-lexicon-cpu-receipts
+          path: ${{ runner.temp }}/selfmodel-evidence/*.json
+          if-no-files-found: error
+          retention-days: 30
