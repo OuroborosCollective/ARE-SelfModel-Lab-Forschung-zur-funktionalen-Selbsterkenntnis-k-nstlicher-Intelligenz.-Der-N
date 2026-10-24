@@ -1,6 +1,6 @@
 {
   "schema": "are-selfmodel-public-sources-1",
-  "recorded_date": "2026-10-23",
+  "recorded_date": "2026-10-24",
   "evidence_state": "public_literature_index_only; no independent reproduction or new model runs",
   "sources": [
     {
@@ -37,6 +37,13 @@
       "url": "https://arxiv.org/abs/2610.07186",
       "scope": "Causal attribution patterns for learned artificial preference self-reports",
       "limitation": "Artificial preference setup and constrained adapters are not a general awareness assay"
+    },
+    {
+      "id": "hahami-2026-detecting-disturbance",
+      "title": "Detecting the Disturbance: A Nuanced View of Introspective Abilities in LLMs",
+      "url": "https://arxiv.org/abs/2512.12411",
+      "scope": "Binary self-report logit shift confound, localization and relative-strength detection",
+      "limitation": "Task- and early-layer-specific preprint results; not independently replicated by ARE SelfModel Lab"
     }
   ]
 }

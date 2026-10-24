@@ -62,3 +62,7 @@ python -m research.selfmodel.scoring research/selfmodel/data/trials.jsonl
 Dieses Repository enthält bereits den MIT-lizenzierten Quellbestand von **TransformerLens**. Der Forschungsordner ist eine eigene, additive Forschungsschicht; er ersetzt oder beansprucht keine Urheberschaft am ursprünglichen TransformerLens-Code. Siehe [`../../LICENSE`](../../LICENSE) beziehungsweise die Lizenz im Repository-Root.
 
 **OuroborosCollective** bezeichnet hier ein persönliches Projektpseudonym, keine eigenständige Forschungsinstitution und kein behauptetes Team.
+
+## Tatsächlicher CPU-Interventionslauf (24. Oktober 2026)
+
+Der ergänzte [CPU-Probe-Runner](CPU_PROBE.md) hat lokal einen **echten Forward-Hook auf PyTorch-CPU** ausgeführt, einen Aktivierungstensor verändert und die Wirkung auf Logits verifiziert. Er nutzt ein **zufällig initialisiertes, nicht trainiertes Toy-Modell**: *technischer Instrumentierungsnachweis, ausdrücklich kein Modell-Selbstbericht oder Bewusstseinsbefund*. Die [Literaturkritik](RELATED_WORK.md) erläutert die notwendigen besseren Kontrollen für echte Experimente. Der gemessene lokale Lauf-Receipt liegt unter [evidence/cpu_probe_local_2026-10-24.json](evidence/cpu_probe_local_2026-10-24.json); eine CI-Überprüfung der neuen CPU-Jobs steht noch aus.
