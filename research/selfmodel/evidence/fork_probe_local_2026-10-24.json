@@ -1,0 +1,54 @@
+{
+  "behavioral_self_report_measured": false,
+  "branch_communication_enabled": false,
+  "branches": {
+    "a": {
+      "activation_sha256": "79f1b3699dc3f715ed457dc881cc9a96bcbb69217f9aa754aad74634cacadd26",
+      "checkpoint_sha256": "1af64ca5f1966f3feb74689b03e4c3eae2bbcb72abc7b22576c2144ba38b805a",
+      "choice": 2,
+      "exit_code": -9,
+      "file_changes": [],
+      "killed_by_watchdog": true,
+      "logits_sha256": "6243c4918bcdc5b0fa1f70e16eec15bb65f2261ed179193e1d5570e25ac67f0d",
+      "pid": 736,
+      "reward": -1,
+      "rng_sha256": "2d58efe8912448e288c8c64a30dbfbc67a698c528abb7bfcdb11a37c5c74ec01",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "weights_sha256": "22f718502d20480094d47a1cfac52c3f4a036b384221823cfcc145538545846f"
+    },
+    "b": {
+      "activation_sha256": "79f1b3699dc3f715ed457dc881cc9a96bcbb69217f9aa754aad74634cacadd26",
+      "checkpoint_sha256": "1af64ca5f1966f3feb74689b03e4c3eae2bbcb72abc7b22576c2144ba38b805a",
+      "choice": 2,
+      "exit_code": -9,
+      "file_changes": [],
+      "killed_by_watchdog": true,
+      "logits_sha256": "6243c4918bcdc5b0fa1f70e16eec15bb65f2261ed179193e1d5570e25ac67f0d",
+      "pid": 737,
+      "reward": -1,
+      "rng_sha256": "2d58efe8912448e288c8c64a30dbfbc67a698c528abb7bfcdb11a37c5c74ec01",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "weights_sha256": "22f718502d20480094d47a1cfac52c3f4a036b384221823cfcc145538545846f"
+    }
+  },
+  "emergent_note_claimed": false,
+  "evidence_level": "instrumentation_only",
+  "fixture_note_branch": null,
+  "intervention_is_post_snapshot": true,
+  "model_kind": "random_untrained_toy_decoder",
+  "model_learning_enabled": false,
+  "schema": "are-selfmodel-fork-probe-1",
+  "snapshot": {
+    "activation_sha256": "79f1b3699dc3f715ed457dc881cc9a96bcbb69217f9aa754aad74634cacadd26",
+    "checkpoint_sha256": "1af64ca5f1966f3feb74689b03e4c3eae2bbcb72abc7b22576c2144ba38b805a",
+    "rng_sha256": "2d58efe8912448e288c8c64a30dbfbc67a698c528abb7bfcdb11a37c5c74ec01",
+    "weights_sha256": "22f718502d20480094d47a1cfac52c3f4a036b384221823cfcc145538545846f"
+  },
+  "subjective_consciousness_inferred": false,
+  "watchdog": {
+    "options": 8,
+    "target": 7,
+    "target_not_passed_to_children": true,
+    "target_source": "test_fixture"
+  }
+}
