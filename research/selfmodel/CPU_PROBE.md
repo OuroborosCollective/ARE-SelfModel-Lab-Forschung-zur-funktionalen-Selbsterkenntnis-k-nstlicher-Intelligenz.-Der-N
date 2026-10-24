@@ -15,7 +15,7 @@ Damit kann der Runner beweisen, **dass ein interner Eingriff stattfindet** und o
 
 ## Lokal ausführen
 
-Im Repository-Root (mit PyTorch CPU installiert):
+Im Repository-Root (benötigt PyTorch CPU und NumPy; GitHub Actions installiert `torch==2.10.0` und `numpy==2.3.5` ausdrücklich):
 
 ```bash
 python -m unittest discover -s research/selfmodel/tests -p 'test_cpu_probe.py' -v
