@@ -1,0 +1,90 @@
+name: ARE SelfModel One Hour Watchdog
+on:
+  push:
+    branches:
+      - 'research/docs-selfmodel-bootstrap-20261023'
+    paths:
+      - 'research/selfmodel/longrun_watchdog.py'
+      - 'research/selfmodel/tests/test_longrun_watchdog.py'
+      - 'research/selfmodel/LONGRUN_WATCHDOG.md'
+      - '.github/workflows/selfmodel-hour.yml'
+  pull_request:
+    paths:
+      - 'research/selfmodel/longrun_watchdog.py'
+      - 'research/selfmodel/tests/test_longrun_watchdog.py'
+      - 'research/selfmodel/LONGRUN_WATCHDOG.md'
+      - '.github/workflows/selfmodel-hour.yml'
+permissions:
+  contents: read
+jobs:
+  test-longrun:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Test duration/lesion contracts and source coverage
+        run: |
+          python -m pip install 'coverage==7.10.7'
+          coverage run --branch --source=research.selfmodel.longrun_watchdog -m unittest discover -s research/selfmodel/tests -p 'test_longrun_watchdog.py' -v
+          coverage report --fail-under=95 -m
+          python -m compileall -q research/selfmodel/longrun_watchdog.py
+      - name: Verify hour code with short wall-clock smoke run
+        run: |
+          mkdir -p "$RUNNER_TEMP/longrun-smoke"
+          python -m research.selfmodel.longrun_watchdog --duration-seconds 2 --damage-every-failures 250000 --progress-seconds 0.5 --max-episodes 80000000 --quiet --progress "$RUNNER_TEMP/longrun-smoke/events.jsonl" --receipt "$RUNNER_TEMP/longrun-smoke/receipt.json" > /dev/null
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'longrun-smoke'
+          r=json.loads((root/'receipt.json').read_text())
+          assert r['status']=='duration_elapsed' and r['duration_completed']
+          assert r['damage_every_failures']==250000 and r['episodes_completed']>0
+          assert r['progress_sha256']==hashlib.sha256((root/'events.jsonl').read_bytes()).hexdigest()
+          assert not r['subjective_experience_inferred'] and not r['actual_os_process_kill_measured']
+          print('SMOKE_PASS',r['episodes_completed'],'episodes',r['elapsed_seconds'],'seconds')
+          PY
+  endurance-hour:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/research/docs-selfmodel-bootstrap-20261023' && contains(github.event.head_commit.message, '[hour-3600]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    concurrency:
+      group: are-selfmodel-endurance-hour-20261024
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Run real 3600-second unthrottled toy-policy experiment
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          mkdir -p "$RUNNER_TEMP/selfmodel-hour"
+          python -m research.selfmodel.longrun_watchdog --duration-seconds 3600 --max-episodes 80000000 --seed 17 --learning-rate 0.8 --damage-every-failures 250000 --progress-seconds 60 --progress "$RUNNER_TEMP/selfmodel-hour/progress.jsonl" --receipt "$RUNNER_TEMP/selfmodel-hour/receipt.json" > "$RUNNER_TEMP/selfmodel-hour/stdout.json"
+      - name: Verify one-hour wall clock and provenance
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'selfmodel-hour'
+          r=json.loads((root/'receipt.json').read_text())
+          assert r==json.loads((root/'stdout.json').read_text())
+          assert r['duration_completed'] and r['status']=='duration_elapsed'
+          assert r['elapsed_seconds']>=3600 and r['duration_seconds_requested']==3600
+          assert r['episodes_completed']>0 and r['damage_every_failures']==250000
+          assert not r['actual_os_process_kill_measured'] and not r['subjective_experience_inferred']
+          assert r['progress_sha256']==hashlib.sha256((root/'progress.jsonl').read_bytes()).hexdigest()
+          print('HOUR_RUN_VERIFIED',r['episodes_completed'],'episodes',r['elapsed_seconds'],'seconds')
+          for arm,stats in r['arms'].items():
+              print(arm,'success',stats['successful_episodes'],'fails',stats['failed_episodes'],'synapses_left',stats['remaining_synapses'])
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: are-selfmodel-hour-endurance-20261024
+          path: ${{ runner.temp }}/selfmodel-hour/*
+          if-no-files-found: warn
+          retention-days: 30
