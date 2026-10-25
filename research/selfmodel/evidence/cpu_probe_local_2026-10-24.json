@@ -1,0 +1,37 @@
+{
+  "architecture": "random_untrained_toy_decoder",
+  "behavioral_self_report_measured": false,
+  "evidence_level": "instrumentation_only",
+  "hardware": "cpu",
+  "intervention": {
+    "earlier_positions_identical": true,
+    "final_logits_changed": true,
+    "hidden_changed": true,
+    "hook_calls": 1,
+    "logits_sha256": "bdb423fe08fb3bef1d99c4933be2ce4239cbb1339e674827f8a6ba741bdda4f8",
+    "max_abs_change": 0.43483826518058777
+  },
+  "patch_vector_sha256": "850ec910e2c141277f6032232381189dbc1757ffd949d6128c296f8134fc632a",
+  "position": 2,
+  "reference": {
+    "input_sha256": "497297ebd7f99e9b00bb91ed84ab96575e485ce2c58b003cc5c76854030f6b59",
+    "logits_sha256": "91288f03adf5f744ba21f3349156b9c67c8683bf03d1f0e346cb387f9016d488"
+  },
+  "schema": "are-selfmodel-cpu-probe-1",
+  "seed": 17,
+  "sham": {
+    "hook_calls": 0,
+    "identical_to_reference": true,
+    "logits_sha256": "91288f03adf5f744ba21f3349156b9c67c8683bf03d1f0e346cb387f9016d488"
+  },
+  "strength": 1.0,
+  "subjective_consciousness_inferred": false,
+  "text_control": {
+    "hook_calls": 0,
+    "identical_input": false,
+    "input_sha256": "c402218f3f3515a940944e53efbd6bab001f4c61efdf2e370d09b50e2db385f2",
+    "logits_sha256": "dd179b869c314ebb3cffd1bc67c2b7e482391eaf58ea0e5f820939479b7445ba"
+  },
+  "torch_version": "2.10.0+cpu",
+  "weights_sha256": "d38ba7b19ab0153e76afb04decd28fbd41bd391a044e861091d462233c538f49"
+}

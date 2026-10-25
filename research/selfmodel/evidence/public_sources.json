@@ -1,0 +1,49 @@
+{
+  "schema": "are-selfmodel-public-sources-1",
+  "recorded_date": "2026-10-24",
+  "evidence_state": "public_literature_index_only; no independent reproduction or new model runs",
+  "sources": [
+    {
+      "id": "binder-2024-looking-inward",
+      "title": "Looking Inward: Language Models Can Learn About Themselves by Introspection",
+      "url": "https://arxiv.org/abs/2410.13787",
+      "scope": "Behavioral self-prediction advantage in constrained experimental tasks",
+      "limitation": "Does not establish consciousness or unrestricted privileged introspective access"
+    },
+    {
+      "id": "lindsey-2026-emergent",
+      "title": "Emergent Introspective Awareness in Large Language Models",
+      "url": "https://arxiv.org/abs/2601.01828",
+      "scope": "Activation-injection reports under selected experimental conditions",
+      "limitation": "Reports were unreliable, sensitive to interventions, and not evidence of subjective experience"
+    },
+    {
+      "id": "singh-2026-reality-check",
+      "title": "Can LLMs Introspect? A Reality Check",
+      "url": "https://arxiv.org/abs/2605.26242",
+      "scope": "Adversarial and input-only control evidence for putative introspection",
+      "limitation": "Challenges a strong privileged-access interpretation; settings differ from positive studies"
+    },
+    {
+      "id": "zou-2026-mechanistic",
+      "title": "A mechanistic study of language model introspection",
+      "url": "https://arxiv.org/abs/2609.35108",
+      "scope": "Mechanistic causal analysis of restricted model reporting tasks",
+      "limitation": "Task-specific preprint results cannot be generalized to all architectures or human consciousness"
+    },
+    {
+      "id": "atkinson-2026-inside",
+      "title": "Identifying Introspection From the Inside",
+      "url": "https://arxiv.org/abs/2610.07186",
+      "scope": "Causal attribution patterns for learned artificial preference self-reports",
+      "limitation": "Artificial preference setup and constrained adapters are not a general awareness assay"
+    },
+    {
+      "id": "hahami-2026-detecting-disturbance",
+      "title": "Detecting the Disturbance: A Nuanced View of Introspective Abilities in LLMs",
+      "url": "https://arxiv.org/abs/2512.12411",
+      "scope": "Binary self-report logit shift confound, localization and relative-strength detection",
+      "limitation": "Task- and early-layer-specific preprint results; not independently replicated by ARE SelfModel Lab"
+    }
+  ]
+}
