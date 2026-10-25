@@ -44,3 +44,7 @@ python -m research.selfmodel.triad_watchdog \
 Im GitHub-Workflow `selfmodel-triad-hour.yml` startet die einstündige Berechnung auf dem Forschungsbranch **nur beim expliziten Commit-Marker** `[triad-hour-3600]`. Andere PR-Pushes starten nur Tests und einen kurzen Smoke-Test. Ein Run gilt als verifiziert erst nach `duration_completed=true`, Laufzeit >= 3.600 Sekunden, GitHub-Job `success` und SHA-256-Readback der JSONL-Protokolle.
 
 **Offene wissenschaftliche Frage:** Ergibt das einfache eingebaute Verstärkungslernen andere Anteile an Selbstwahl, Angriffen gegen den kleinen Agenten und freiwilligen Rettungen als Zufall? Selbst bei einer Veränderung wäre dies ein Test einer **programmierten** Strategie, nicht ein Beleg für einen selbst entwickelten Überlebenswillen.
+
+## Einmaliger Start des ersten Stundenlaufs
+
+Der separate Ein-Stunden-Job ist bewusst nicht an jeden Push gekoppelt. Nur ein Push auf `research/triad-hour-20261025` mit dem Commitmarker `[triad-hour-3600]` löst ihn aus; normale Folgecommits wiederholen ihn nicht. Diese Dokumentationszeile ist zugleich der absichtliche, zur Workflow-Pfadfilterung passende Start-Commit. Die tatsächliche Ausführung und ihr Ergebnis müssen anschließend separat anhand von GitHub-Workflow-ID, Jobstatus und Ergebnisartefakt geprüft werden.
