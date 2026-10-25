@@ -98,7 +98,6 @@ class LongrunWatchdogTests(unittest.TestCase):
                 run_duration_experiment(**kwargs)
 
     def test_clock_validation_and_backward_time_are_rejected(self):
-        from itertools import chain
         with self.assertRaisesRegex(ValueError, "callable"):
             run_duration_experiment(clock=None)
         with self.assertRaisesRegex(ValueError, "non-finite start"):

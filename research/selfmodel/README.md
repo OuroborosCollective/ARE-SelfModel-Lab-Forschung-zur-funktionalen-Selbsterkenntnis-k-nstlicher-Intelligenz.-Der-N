@@ -74,3 +74,7 @@ Der ergänzte [CPU-Probe-Runner](CPU_PROBE.md) hat lokal einen **echten Forward-
 - Messbelege: [Thaler 10.000](evidence/thaler_10000_local_2026-10-24.json) und [Lexikon 10.000](evidence/lexicon_10000_local_2026-10-24.json). Eigener [GitHub-Actions-Workflow](../../.github/workflows/selfmodel-thaler-lexicon.yml) prüft die Rechnungen und archiviert CI-Receipts.
 
 Die Logik der kleinen Thaler-Binärschaltung wurde zusätzlich unabhängig in [Wolfram Language](wolfram/thaler_truth_table.wl) abgeglichen. **Die beobachteten Anpassungen dürfen nicht als Schmerz, Angst, Bewusstsein oder selbst erfundene Selbsterhaltung interpretiert werden.**
+
+## Verifizierter Stundenlauf (25. Oktober 2026)
+
+Der [Readback-Bericht](evidence/hour_3600_review_2026-10-25.md) wertet das originale GitHub-Actions-Artefakt aus (31.809.129 Episoden in 3.600 Sekunden). **In den lernenden Armen änderten sich die Parameter nach Minute eins nicht mehr.** Daher ist die nächste sinnvolle Forschungsstufe eine vorab spezifizierte, wechselnde Datenverfallsordnung – nicht eine weitere Million identischer Wiederholungen.
