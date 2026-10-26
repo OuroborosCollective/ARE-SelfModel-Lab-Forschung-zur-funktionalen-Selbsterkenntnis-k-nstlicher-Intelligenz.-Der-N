@@ -1,0 +1,39 @@
+name: ARE SelfModel Telegraph Rescue Research
+on:
+  push:
+    branches: [research/predecision-telegraph-rescue-20261026]
+    paths:
+      - 'research/selfmodel/continuity/prosocial/*telegraph_experiment.cpp'
+      - '.github/workflows/selfmodel-telegraph-rescue.yml'
+  pull_request:
+    paths:
+      - 'research/selfmodel/continuity/prosocial/*telegraph_experiment.cpp'
+      - '.github/workflows/selfmodel-telegraph-rescue.yml'
+permissions:
+  contents: read
+jobs:
+  telegraph-rescue:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Compile against original deterministic C++ rules
+        run: |
+          g++ -std=c++17 -O2 -Wall -Wextra -Werror -pedantic -Wno-deprecated-declarations -Iresearch/selfmodel/continuity/src research/selfmodel/continuity/prosocial/test_telegraph_experiment.cpp -lcrypto -o /tmp/test_telegraph
+          g++ -std=c++17 -O2 -Wall -Wextra -Werror -pedantic -Wno-deprecated-declarations -Iresearch/selfmodel/continuity/src research/selfmodel/continuity/prosocial/telegraph_experiment.cpp -lcrypto -o /tmp/telegraph_experiment
+      - name: Verify causal safeguards on original combat implementation
+        run: /tmp/test_telegraph
+      - name: Run distinct research seeds and read back deterministic results
+        run: |
+          /tmp/telegraph_experiment > /tmp/telegraph_a.json
+          /tmp/telegraph_experiment > /tmp/telegraph_b.json
+          cmp /tmp/telegraph_a.json /tmp/telegraph_b.json
+          python3 -m json.tool /tmp/telegraph_a.json > /dev/null
+          sha256sum /tmp/telegraph_a.json
+          cat /tmp/telegraph_a.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: are-telegraph-rescue-evidence
+          path: /tmp/telegraph_a.json
+          if-no-files-found: error
+          retention-days: 30
