@@ -68,10 +68,11 @@ class ResumeHistoryTests(unittest.TestCase):
                                    sample_every=10, checkpoint_every=10,
                                    damage_interval=7)
             resumed_dir = Path(d) / 'resumed'
+            original_manifest = json.loads((old / 'manifest.json').read_text())
             resumed = recover_and_continue(
                 binary=BINARY, source=old, output=resumed_dir,
                 expected_snapshot_sha=old_snapshot_sha,
-                expected_base_commit='local_uncommitted',
+                expected_base_commit=json.loads((old / 'manifest.json').read_text())['source_commit'],
                 stages=[150, 200], timeout_seconds=60,
             )
             self.assertEqual([x['episode'] for x in resumed['completed']],
@@ -101,7 +102,7 @@ class ResumeHistoryTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 recover_and_continue(binary=BINARY, source=old, output=out,
                                      expected_snapshot_sha=actual_sha,
-                                     expected_base_commit='local_uncommitted',
+                                     expected_base_commit=json.loads((old / 'manifest.json').read_text())['source_commit'],
                                      stages=[150, 200])
             self.assertFalse(out.exists())
 
@@ -115,7 +116,7 @@ class ResumeHistoryTests(unittest.TestCase):
                 recover_and_continue(binary=BINARY, source=old,
                                      output=Path(d) / 'out',
                                      expected_snapshot_sha=hash_file(old / 'current_state.bin'),
-                                     expected_base_commit='local_uncommitted',
+                                     expected_base_commit=json.loads((old / 'manifest.json').read_text())['source_commit'],
                                      stages=[150, 200])
 
     def test_rejects_second_run_into_occupied_destination(self):
@@ -126,7 +127,7 @@ class ResumeHistoryTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 recover_and_continue(binary=BINARY, source=old, output=out,
                                      expected_snapshot_sha=hash_file(old / 'current_state.bin'),
-                                     expected_base_commit='local_uncommitted',
+                                     expected_base_commit=json.loads((old / 'manifest.json').read_text())['source_commit'],
                                      stages=[150, 200])
             self.assertEqual((out / 'keep').read_text(), 'original')
 
