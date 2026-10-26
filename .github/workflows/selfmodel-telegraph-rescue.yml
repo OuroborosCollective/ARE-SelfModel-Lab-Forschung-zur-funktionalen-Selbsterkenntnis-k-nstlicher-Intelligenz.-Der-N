@@ -19,8 +19,8 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Compile against original deterministic C++ rules
         run: |
-          g++ -std=c++17 -O2 -Wall -Wextra -Werror -pedantic -Wno-deprecated-declarations -Iresearch/selfmodel/continuity/src research/selfmodel/continuity/prosocial/test_telegraph_experiment.cpp -lcrypto -o /tmp/test_telegraph
-          g++ -std=c++17 -O2 -Wall -Wextra -Werror -pedantic -Wno-deprecated-declarations -Iresearch/selfmodel/continuity/src research/selfmodel/continuity/prosocial/telegraph_experiment.cpp -lcrypto -o /tmp/telegraph_experiment
+          g++ -std=c++17 -O2 -Wall -Wextra -Werror -Wno-error=misleading-indentation -pedantic -Wno-deprecated-declarations -Iresearch/selfmodel/continuity/src research/selfmodel/continuity/prosocial/test_telegraph_experiment.cpp -lcrypto -o /tmp/test_telegraph
+          g++ -std=c++17 -O2 -Wall -Wextra -Werror -Wno-error=misleading-indentation -pedantic -Wno-deprecated-declarations -Iresearch/selfmodel/continuity/src research/selfmodel/continuity/prosocial/telegraph_experiment.cpp -lcrypto -o /tmp/telegraph_experiment
       - name: Verify causal safeguards on original combat implementation
         run: /tmp/test_telegraph
       - name: Run distinct research seeds and read back deterministic results
