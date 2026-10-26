@@ -22,3 +22,7 @@ Für jede Etappe Siegeranteile und Lerndrift vergleichen, den Einfluss der nach 
 **Vorliegen eines erfolgreichen PDFs:** ausschließlich nachdem `verify_and_load` alle acht Einträge einschließlich des wiederhergestellten 109M-Standes und das letzte 200M-Receipt unabhängig geprüft hat.
 
 Quelle: https://github.com/OuroborosCollective/ARE-SelfModel-Lab-Forschung-zur-funktionalen-Selbsterkenntnis-k-nstlicher-Intelligenz.-Der-N/actions/runs/40255108873, Commit `9d960607c20c816e188364544c94a24326de4916`.
+
+## Startfreigabe nach grünem GitHub-Readback
+
+Run #40362230171, `resume-contract` erfolgreich, ursprünglicher 109M-Checkpoint und native OpenSSL-ABI verifiziert. Die Folgearbeit wird ausschließlich über den separaten Commit-Marker `[resume-109m-to-200m]` gestartet; Enderfolg erst nach vollständigem Artefakt- und PDF-Readback.
