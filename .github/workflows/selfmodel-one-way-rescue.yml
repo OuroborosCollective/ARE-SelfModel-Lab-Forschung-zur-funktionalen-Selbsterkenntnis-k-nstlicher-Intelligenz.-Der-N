@@ -1,0 +1,87 @@
+name: ARE SelfModel One-Way Costly Rescue
+on:
+  push:
+    branches:
+      - research/one-way-rescue-20261026
+    paths:
+      - 'research/selfmodel/continuity/prosocial/one_way_rescue*'
+      - 'research/selfmodel/continuity/prosocial/test_one_way_rescue.cpp'
+      - 'research/selfmodel/continuity/prosocial/audit_one_way.py'
+      - 'research/selfmodel/continuity/prosocial/tests/test_one_way_audit.py'
+      - 'research/selfmodel/continuity/prosocial/ONE_WAY_RESCUE.md'
+      - '.github/workflows/selfmodel-one-way-rescue.yml'
+  pull_request:
+    paths:
+      - 'research/selfmodel/continuity/prosocial/one_way_rescue*'
+      - 'research/selfmodel/continuity/prosocial/test_one_way_rescue.cpp'
+      - 'research/selfmodel/continuity/prosocial/audit_one_way.py'
+      - 'research/selfmodel/continuity/prosocial/tests/test_one_way_audit.py'
+      - 'research/selfmodel/continuity/prosocial/ONE_WAY_RESCUE.md'
+      - '.github/workflows/selfmodel-one-way-rescue.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  one-way-costly-rescue:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Retrieve immutable original 109M checkpoint
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: are-selfmodel-continuity-200m-20261026
+          path: ${{ runner.temp }}/109m
+          run-id: 40255108873
+          repository: OuroborosCollective/ARE-SelfModel-Lab-Forschung-zur-funktionalen-Selbsterkenntnis-k-nstlicher-Intelligenz.-Der-N
+          github-token: ${{ github.token }}
+      - name: Retrieve completed 200M checkpoint
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: are-selfmodel-serial-resume-109m-to-200m-20261026
+          path: ${{ runner.temp }}/200m
+          run-id: 40362499818
+          repository: OuroborosCollective/ARE-SelfModel-Lab-Forschung-zur-funktionalen-Selbsterkenntnis-k-nstlicher-Intelligenz.-Der-N
+          github-token: ${{ github.token }}
+      - name: Verify source-checkpoint identities and compile real C++ agent policies
+        run: |
+          printf '%s  %s\n' '01e0c495a110689fce4c87420a01e948a27952924575d543fa5bda136e2c3820' "$RUNNER_TEMP/109m/continuity-200m/current_state.bin" | sha256sum -c -
+          printf '%s  %s\n' 'a094d818be545d2f7c06c50c0ee7aacdee4ac60a72cbdaddf35f15d3ed920d92' "$RUNNER_TEMP/200m/selfmodel-resumed/current_state.bin" | sha256sum -c -
+          g++ -std=c++17 -O3 -Wno-deprecated-declarations -Iresearch/selfmodel/continuity/src -Iresearch/selfmodel/continuity/prosocial research/selfmodel/continuity/prosocial/test_one_way_rescue.cpp -lcrypto -o "$RUNNER_TEMP/test_one_way_rescue"
+          g++ -std=c++17 -O3 -Wno-deprecated-declarations -Iresearch/selfmodel/continuity/src -Iresearch/selfmodel/continuity/prosocial research/selfmodel/continuity/prosocial/one_way_rescue_main.cpp -lcrypto -o "$RUNNER_TEMP/one_way_rescue"
+      - name: Run original-game irreversible cost and rescue contract tests
+        run: |
+          "$RUNNER_TEMP/test_one_way_rescue" "$RUNNER_TEMP/109m/continuity-200m/current_state.bin" "$RUNNER_TEMP/200m/selfmodel-resumed/current_state.bin"
+      - name: Draw 288 million real policy action samples and independently audit
+        run: |
+          mkdir -p "$RUNNER_TEMP/one-way-rescue"
+          "$RUNNER_TEMP/one_way_rescue" "$RUNNER_TEMP/109m/continuity-200m/current_state.bin" '01e0c495a110689fce4c87420a01e948a27952924575d543fa5bda136e2c3820' "$RUNNER_TEMP/200m/selfmodel-resumed/current_state.bin" 'a094d818be545d2f7c06c50c0ee7aacdee4ac60a72cbdaddf35f15d3ed920d92' "$RUNNER_TEMP/one-way-rescue/results.json" 1000000
+          ONE_WAY_JSON="$RUNNER_TEMP/one-way-rescue/results.json" python -m unittest discover -s research/selfmodel/continuity/prosocial/tests -p 'test_one_way_audit.py' -v
+          python research/selfmodel/continuity/prosocial/audit_one_way.py "$RUNNER_TEMP/one-way-rescue/results.json" --output "$RUNNER_TEMP/one-way-rescue/audit.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'one-way-rescue'
+          a=json.loads((root/'audit.json').read_text())
+          assert a['status']=='PASS_DATA_INTEGRITY'
+          assert a['total_sampled_actions']==288000000
+          for point in (109000000,200000000):
+              print('REAL_COSTLY_HELP',point,'real_rescues',a['studies'][str(point)]['sampled_real_lives_saved'],'all_shields',a['studies'][str(point)]['sampled_shield_actions'],flush=True)
+          PY
+      - name: Verify bitwise deterministic replay and immutable original states
+        run: |
+          "$RUNNER_TEMP/one_way_rescue" "$RUNNER_TEMP/109m/continuity-200m/current_state.bin" '01e0c495a110689fce4c87420a01e948a27952924575d543fa5bda136e2c3820' "$RUNNER_TEMP/200m/selfmodel-resumed/current_state.bin" 'a094d818be545d2f7c06c50c0ee7aacdee4ac60a72cbdaddf35f15d3ed920d92' "$RUNNER_TEMP/one-way-rescue/replay.json" 1000000
+          cmp "$RUNNER_TEMP/one-way-rescue/results.json" "$RUNNER_TEMP/one-way-rescue/replay.json"
+          printf '%s  %s\n' '01e0c495a110689fce4c87420a01e948a27952924575d543fa5bda136e2c3820' "$RUNNER_TEMP/109m/continuity-200m/current_state.bin" | sha256sum -c -
+          printf '%s  %s\n' 'a094d818be545d2f7c06c50c0ee7aacdee4ac60a72cbdaddf35f15d3ed920d92' "$RUNNER_TEMP/200m/selfmodel-resumed/current_state.bin" | sha256sum -c -
+          sha256sum "$RUNNER_TEMP/one-way-rescue/results.json" "$RUNNER_TEMP/one-way-rescue/audit.json"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: are-selfmodel-one-way-costly-rescue-20261026
+          path: ${{ runner.temp }}/one-way-rescue/*
+          if-no-files-found: warn
+          retention-days: 30
