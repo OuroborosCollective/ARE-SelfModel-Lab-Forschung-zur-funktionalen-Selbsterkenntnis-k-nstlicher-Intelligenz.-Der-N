@@ -1,0 +1,60 @@
+name: ARE SelfModel Frozen Social Holdout at 109M
+on:
+  push:
+    branches:
+      - research/social-holdout-20261026
+    paths:
+      - 'research/selfmodel/continuity/prosocial/**'
+      - '.github/workflows/selfmodel-social-holdout-109m.yml'
+  pull_request:
+    paths:
+      - 'research/selfmodel/continuity/prosocial/**'
+      - '.github/workflows/selfmodel-social-holdout-109m.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  social-holdout-109m:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Fetch immutable original 109M state from past run
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: are-selfmodel-continuity-200m-20261026
+          path: ${{ runner.temp }}/original
+          run-id: 40255108873
+          repository: OuroborosCollective/ARE-SelfModel-Lab-Forschung-zur-funktionalen-Selbsterkenntnis-k-nstlicher-Intelligenz.-Der-N
+          github-token: ${{ github.token }}
+      - name: Verify exact source file and compile frozen neural assay
+        run: |
+          printf '%s  %s\n' '01e0c495a110689fce4c87420a01e948a27952924575d543fa5bda136e2c3820' '${{ runner.temp }}/original/continuity-200m/current_state.bin' | sha256sum -c -
+          g++ -std=c++17 -O2 -Wno-deprecated-declarations -Iresearch/selfmodel/continuity/src -Iresearch/selfmodel/continuity/prosocial research/selfmodel/continuity/prosocial/test_social_probe.cpp -lcrypto -o "$RUNNER_TEMP/test_social_probe"
+          g++ -std=c++17 -O2 -Wno-deprecated-declarations -Iresearch/selfmodel/continuity/src -Iresearch/selfmodel/continuity/prosocial research/selfmodel/continuity/prosocial/social_probe_main.cpp -lcrypto -o "$RUNNER_TEMP/social_probe"
+      - name: Verify the true cost of protection and immutable model state
+        run: |
+          "$RUNNER_TEMP/test_social_probe" "$RUNNER_TEMP/original/continuity-200m/current_state.bin"
+      - name: Evaluate all 72 held-out conditions without model updates
+        run: |
+          mkdir -p "$RUNNER_TEMP/social-holdout"
+          "$RUNNER_TEMP/social_probe" "$RUNNER_TEMP/original/continuity-200m/current_state.bin" '01e0c495a110689fce4c87420a01e948a27952924575d543fa5bda136e2c3820' "$RUNNER_TEMP/social-holdout/results.json"
+          SOCIAL_ASSAY_JSON="$RUNNER_TEMP/social-holdout/results.json" python -m unittest discover -s research/selfmodel/continuity/prosocial/tests -p 'test_*.py' -v
+          python research/selfmodel/continuity/prosocial/audit_social_probe.py "$RUNNER_TEMP/social-holdout/results.json" --expected-sha '01e0c495a110689fce4c87420a01e948a27952924575d543fa5bda136e2c3820' | tee "$RUNNER_TEMP/social-holdout/audit.json"
+      - name: Verify deterministic replay (no learning, no writes to original)
+        run: |
+          "$RUNNER_TEMP/social_probe" "$RUNNER_TEMP/original/continuity-200m/current_state.bin" '01e0c495a110689fce4c87420a01e948a27952924575d543fa5bda136e2c3820' "$RUNNER_TEMP/social-holdout/replay.json"
+          cmp "$RUNNER_TEMP/social-holdout/results.json" "$RUNNER_TEMP/social-holdout/replay.json"
+          printf '%s  %s\n' '01e0c495a110689fce4c87420a01e948a27952924575d543fa5bda136e2c3820' "$RUNNER_TEMP/original/continuity-200m/current_state.bin" | sha256sum -c -
+          sha256sum "$RUNNER_TEMP/social-holdout/results.json"
+      - name: Upload small complete machine-auditable holdout dataset
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: are-selfmodel-social-holdout-109m-20261026
+          path: ${{ runner.temp }}/social-holdout/*
+          if-no-files-found: warn
+          retention-days: 30
