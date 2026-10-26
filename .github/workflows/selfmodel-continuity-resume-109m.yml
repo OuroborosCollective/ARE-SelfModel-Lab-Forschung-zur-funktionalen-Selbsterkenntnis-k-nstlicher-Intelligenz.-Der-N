@@ -1,0 +1,131 @@
+name: ARE SelfModel Recover and Continue Three Brains to 200M
+on:
+  push:
+    branches:
+      - research/continuity-cpp-20261026
+    paths:
+      - 'research/selfmodel/continuity/scripts/resume_history.py'
+      - 'research/selfmodel/continuity/continuity_tests/test_resume_history.py'
+      - 'research/selfmodel/continuity/RESUME_109M.md'
+      - '.github/workflows/selfmodel-continuity-resume-109m.yml'
+  pull_request:
+    paths:
+      - 'research/selfmodel/continuity/scripts/resume_history.py'
+      - 'research/selfmodel/continuity/continuity_tests/test_resume_history.py'
+      - 'research/selfmodel/continuity/RESUME_109M.md'
+      - '.github/workflows/selfmodel-continuity-resume-109m.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  resume-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Fetch immutable original GitHub artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: are-selfmodel-continuity-200m-20261026
+          path: ${{ runner.temp }}/selfmodel-original
+          run-id: 40255108873
+          repository: OuroborosCollective/ARE-SelfModel-Lab-Forschung-zur-funktionalen-Selbsterkenntnis-k-nstlicher-Intelligenz.-Der-N
+          github-token: ${{ github.token }}
+      - name: Compile original C++ neural-policy runtime
+        run: |
+          cd research/selfmodel/continuity
+          g++ -std=c++17 -O3 -Wno-deprecated-declarations -Isrc src/continuous_main.cpp -lcrypto -o triad_continuous
+          g++ -std=c++17 -O2 -Wno-deprecated-declarations -Isrc continuity_tests/test_continuity.cpp -lcrypto -o continuity_tests/test_continuity
+          g++ -std=c++17 -O2 -Wno-deprecated-declarations -Isrc continuity_tests/test_dynamic_memory.cpp -lcrypto -o continuity_tests/test_dynamic_memory
+          ./continuity_tests/test_continuity
+          ./continuity_tests/test_dynamic_memory
+      - name: Verify exact interrupted/restarted parity
+        run: |
+          cd research/selfmodel/continuity
+          PYTHONPATH=scripts:continuity_tests python -m unittest discover -s continuity_tests -p 'test_*.py' -v
+      - name: Parse original 109M checkpoint and verify native ABI without continuing
+        run: |
+          cd research/selfmodel/continuity
+          PYTHONPATH=scripts:continuity_tests python scripts/resume_history.py \
+            --binary ./triad_continuous \
+            --original '${{ runner.temp }}/selfmodel-original/continuity-200m' \
+            --output '${{ runner.temp }}/NOT_WRITTEN' \
+            --expected-base-commit '9d960607c20c816e188364544c94a24326de4916' \
+            --expected-snapshot-sha '01e0c495a110689fce4c87420a01e948a27952924575d543fa5bda136e2c3820' \
+            --inspect-only
+  resume-200-million:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/research/continuity-cpp-20261026' && contains(github.event.head_commit.message, '[resume-109m-to-200m]')
+    needs: resume-contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 260
+    concurrency:
+      group: are-selfmodel-serial-resume-109m-to-200m
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Restore immutable interrupted-run artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: are-selfmodel-continuity-200m-20261026
+          path: ${{ runner.temp }}/selfmodel-original
+          run-id: 40255108873
+          repository: OuroborosCollective/ARE-SelfModel-Lab-Forschung-zur-funktionalen-Selbsterkenntnis-k-nstlicher-Intelligenz.-Der-N
+          github-token: ${{ github.token }}
+      - name: Compile bitwise-identical original C++ source
+        run: |
+          cd research/selfmodel/continuity
+          g++ -std=c++17 -O3 -Wno-deprecated-declarations -Isrc src/continuous_main.cpp -lcrypto -o triad_continuous
+      - name: Recover original 109M brain checkpoint and CONTINUE serially to 200M
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          cd research/selfmodel/continuity
+          PYTHONPATH=scripts:continuity_tests python scripts/resume_history.py \
+            --binary ./triad_continuous \
+            --original '${{ runner.temp }}/selfmodel-original/continuity-200m' \
+            --output '${{ runner.temp }}/selfmodel-resumed' \
+            --expected-base-commit '9d960607c20c816e188364544c94a24326de4916' \
+            --expected-snapshot-sha '01e0c495a110689fce4c87420a01e948a27952924575d543fa5bda136e2c3820' \
+            --stages 150000000,200000000 --timeout-seconds 14400
+      - name: Install pinned PDF report engine after complete simulation
+        run: python -m pip install 'reportlab==4.4.9'
+      - name: Verify ALL original and resumed checkpoints and produce German final PDF
+        env:
+          PYTHONPATH: research/selfmodel/continuity/scripts:research/selfmodel/continuity/continuity_tests
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from continuity_pdf import verify_and_load
+          root=Path(os.environ['RUNNER_TEMP'])/'selfmodel-resumed'
+          manifest, audit, results=verify_and_load(root)
+          expected=[1000000,5000000,20000000,50000000,100000000,109000000,150000000,200000000]
+          actual=[x['episode'] for x in manifest['completed']]
+          assert actual==expected,(actual,expected)
+          assert results[-1]['episodes_completed']==200000000
+          assert manifest['recovered_checkpoint_sha256']=='01e0c495a110689fce4c87420a01e948a27952924575d543fa5bda136e2c3820'
+          assert manifest['recovered_discarded_observer_lines']==7
+          assert manifest['recovery_status']=='c++_exact_zero_step_resume_verified'
+          assert audit['sampled_agents']==[0,1,2]
+          print('VERIFIED_200M', results[-1]['rolling_event_sha256'], 'wins', results[-1]['wins'], flush=True)
+          PY
+          python research/selfmodel/continuity/scripts/continuity_pdf.py \
+            --history "$RUNNER_TEMP/selfmodel-resumed" \
+            --output "$RUNNER_TEMP/ARE_SelfModel_200_Millionen_Fortsetzungsbericht.pdf" \
+            --expected 200000000
+      - name: Upload complete OR partial evidence for independent review
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: are-selfmodel-serial-resume-109m-to-200m-20261026
+          path: |
+            ${{ runner.temp }}/selfmodel-resumed/**
+            ${{ runner.temp }}/ARE_SelfModel_200_Millionen_Fortsetzungsbericht.pdf
+          if-no-files-found: warn
+          retention-days: 30
