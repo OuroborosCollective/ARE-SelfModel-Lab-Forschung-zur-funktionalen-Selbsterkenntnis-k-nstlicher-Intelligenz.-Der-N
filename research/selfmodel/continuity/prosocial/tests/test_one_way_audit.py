@@ -16,6 +16,8 @@ from audit_one_way import audit
 class OneWayAuditorTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        if 'ONE_WAY_JSON' not in os.environ:
+            raise unittest.SkipTest('Independent one-way assay requires ONE_WAY_JSON; legacy social-holdout has separate fixtures')
         cls.path=Path(os.environ['ONE_WAY_JSON'])
         cls.payload=json.loads(cls.path.read_text())
 
