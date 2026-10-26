@@ -48,3 +48,7 @@ Im GitHub-Workflow `selfmodel-triad-hour.yml` startet die einstündige Berechnun
 ## Einmaliger Start des ersten Stundenlaufs
 
 Der separate Ein-Stunden-Job ist bewusst nicht an jeden Push gekoppelt. Nur ein Push auf `research/triad-hour-20261025` mit dem Commitmarker `[triad-hour-3600]` löst ihn aus; normale Folgecommits wiederholen ihn nicht. Diese Dokumentationszeile ist zugleich der absichtliche, zur Workflow-Pfadfilterung passende Start-Commit. Die tatsächliche Ausführung und ihr Ergebnis müssen anschließend separat anhand von GitHub-Workflow-ID, Jobstatus und Ergebnisartefakt geprüft werden.
+
+## Forensischer Readback des Stundenlaufs (26. Oktober 2026)
+
+[**Mitleid, Dankbarkeit und mögliche Ausnutzung – SHA-gebundene Analyse**](evidence/triad_social_forensics_2026-10-26.md): Keiner der Großen kann im aktuellen Modell retten; Klein rettete A 863.965-mal und B 868.027-mal. Persönliche Hilfserinnerung und zielgerichtete Ausnutzung waren nicht implementiert. Die Zielwahl-Häufigkeiten sind aggregiert, keine kausalen Nachweise sozialer Motive. Der Bericht prüft den Original-Artifact-Digest sowie exakt den Stundenlauf-Commit.
